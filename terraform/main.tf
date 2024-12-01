@@ -32,8 +32,8 @@ data "aws_vpc" "default" {
  default = true
 }
 
-resource "aws_security_group" "too-open-security-group" {
-  name        = "too-open-security-group"
+resource "aws_security_group" "juiceshop-security-group" {
+  name        = "juiceshop-security-group"
   description = "Allow 8080 and 22"
 
   ingress {
@@ -46,8 +46,8 @@ resource "aws_security_group" "too-open-security-group" {
 
   ingress {
     description = "HTTP ingress"
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 3000
+    to_port     = 3000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -65,7 +65,7 @@ resource "aws_instance" "test" {
   instance_type = "t2.micro"
   associate_public_ip_address = true
   key_name        = aws_key_pair.github-deployer.key_name
-  vpc_security_group_ids = [aws_security_group.too-open-security-group.id]
+  vpc_security_group_ids = [aws_security_group.juiceshop-security-group.id]
 
 
   user_data = <<EOF
