@@ -1,0 +1,45 @@
+name: "Calculate new infraestructure on PR"
+on:
+  pull_request:
+    branches:
+      - main 
+    paths:
+      - 'terraform/**.tf'
+
+jobs:
+  deploy:
+    name: PR Terraform planner
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout (bring code to this VM)"
+        uses: actions/checkout@v3
+      
+      - name: "Setup terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
+      - name: "Setup AWS credentials"
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+
+      - name: "Terraform plan difference"
+        run:  |
+          cd terraform
+          terraform init
+          terraform plan -var="EC2_PUBLIC_KEY==${EC2_PUBLIC_KEY}" -lock=false -out terraform.plan
+          terraform show -no-color terraform.plan > terraform.text
+          terraform show -json terraform.plan > terraform.json
+        env:
+          EC2_PUBLIC_KEY: ${{ secrets.EC2_PUBLIC_KEY }}
+
+      - name: "Post plan comment"
+        uses: ahmadnassri/action-terraform-report@v4
+        with:
+          terraform-text: terraform/terraform.text
+          terraform-json: terraform/terraform.json
+          github-token: ${{ secrets.PR_COMMENTER_TOKEN }}
+          remove-stale-reports: true 

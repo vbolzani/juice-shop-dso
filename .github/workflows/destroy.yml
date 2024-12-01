@@ -1,0 +1,29 @@
+name: "Destroy deployed infraestructure"
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0,30 * * * *"
+
+jobs:
+  terraform_destroy:
+    name: Terraform destroy
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout (bring code to this VM)"
+        uses: actions/checkout@v3
+      
+      - name: "Setup terraform"
+        uses: hashicorp/setup-terraform@v3
+
+      - name: "Setup AWS credentials"
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-region: us-east-1
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+
+      - name: "Terraform destroy"
+        run:  |
+          cd terraform
+          terraform init
+          terraform destroy -auto-approve -var="EC2_PUBLIC_KEY=test"
