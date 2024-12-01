@@ -1,8 +1,6 @@
 name: "Destroy deployed infraestructure"
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0,30 * * * *"
 
 jobs:
   terraform_destroy:

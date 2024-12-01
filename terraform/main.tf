@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "vbolzani-terraform-state-1"
+    bucket = "vbolzani-terraform-state-2"
     key    = "tfstate/state"
     region = "us-east-1"
   }
@@ -45,7 +45,7 @@ resource "aws_security_group" "juiceshop-security-group" {
   }
 
   ingress {
-    description = "HTTP ingress"
+    description = "HTTP juiceshop ingress"
     from_port   = 3000
     to_port     = 3000
     protocol    = "tcp"
@@ -70,8 +70,17 @@ resource "aws_instance" "test" {
 
   user_data = <<EOF
 #!/bin/bash
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh ./get-docker.sh --dry-run
+
+apt-get update
+apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+apt-get update
+apt-get install -y docker-ce
+usermod -aG docker ubuntu
 EOF
 
 
