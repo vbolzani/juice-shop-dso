@@ -46,8 +46,8 @@ resource "aws_security_group" "juiceshop-security-group" {
 
   ingress {
     description = "HTTP juiceshop ingress"
-    from_port   = 3000
-    to_port     = 3000
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -62,7 +62,7 @@ resource "aws_security_group" "juiceshop-security-group" {
 
 resource "aws_instance" "test" {
   ami           = data.aws_ami.ubuntu.id
-  instance_type = "t2.micro"
+  instance_type = "t2.medium"
   associate_public_ip_address = true
   key_name        = aws_key_pair.github-deployer.key_name
   vpc_security_group_ids = [aws_security_group.juiceshop-security-group.id]
