@@ -1,4 +1,4 @@
-name: Build docker image and push to repository
+name: DAST with ZAP
 
 on:
   workflow_run:
