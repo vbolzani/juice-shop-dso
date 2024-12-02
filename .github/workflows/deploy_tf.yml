@@ -8,7 +8,7 @@ on:
 
 jobs:
   deploy:
-    name: App deploy
+    name: Infra deploy
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout (bring code to this VM)"

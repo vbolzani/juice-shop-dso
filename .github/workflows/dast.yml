@@ -37,6 +37,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
-          target: 'http://${EC2_PUBLIC_IP}:3000'
+          target: "http://${{ env.EC2_PUBLIC_IP }}:3000"
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a'
