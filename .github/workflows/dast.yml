@@ -9,6 +9,8 @@ jobs:
   dast:
     runs-on: ubuntu-latest
     name: Scan the deployed app
+    permissions:
+      issues: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
