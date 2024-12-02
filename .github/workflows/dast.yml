@@ -4,6 +4,7 @@ on:
   workflow_run:
     workflows: ["Deploy Docker latest image with a SSH push"]
     types: [completed]
+  workflow_dispatch:
 
 jobs:
   dast:
@@ -42,3 +43,9 @@ jobs:
           target: "http://${{ env.EC2_PUBLIC_IP }}:8080"
           rules_file_name: '.zap/rules.tsv'
           cmd_options: '-a -x report.xml'
+
+      - name: Upload XML artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: xml-report
+          path: ./report.xml
