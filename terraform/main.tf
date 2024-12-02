@@ -60,7 +60,7 @@ resource "aws_security_group" "juiceshop-security-group" {
  }
 }
 
-resource "aws_instance" "test1" {
+resource "aws_instance" "test" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   associate_public_ip_address = true
@@ -87,5 +87,5 @@ EOF
 }
 
 output "deployed_public_ip" {
-    value = aws_instance.test1.public_ip
+    value = aws_instance.test.public_ip
 }
