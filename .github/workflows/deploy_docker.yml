@@ -2,10 +2,15 @@ name: "Deploy Docker latest image with a SSH push"
 on:
   push:
     branches:
-      - main 
-  #workflow_run:
-  #  workflows: ["EC2 deploy with Terraform"]
-  #  types: [completed]
+      - main
+    paths:
+      - 'frontend/**'
+      - 'models/**'
+      - 'tsconfig.json'
+      - 'package.json'
+  workflow_run:
+    workflows: ["EC2 deploy with Terraform"]
+    types: [completed]
 
 jobs:
   deploy:

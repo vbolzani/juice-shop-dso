@@ -1,15 +1,12 @@
-name: SCA/SAST Scans
+name: SCA/SAST Scans on main
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
       - main 
 
 jobs:
-  sast:
+  sast-iac:
     runs-on: ubuntu-latest
     permissions:
       security-events: write
@@ -26,14 +23,6 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --sarif-file-output=iac.sarif
-      
-      - name: Run Snyk to check Node security
-        uses: snyk/actions/node@master
-        continue-on-error: true
-        env:
-          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=node.sarif
 
       - name: Upload Snyk IaC results
         uses: github/codeql-action/upload-sarif@v3
@@ -41,7 +30,30 @@ jobs:
           sarif_file: iac.sarif
           category: terraform-sast
 
-      - name: Upload Snyk IaC results
+    
+  sast-node:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v3
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+      - run: npm install
+
+      - name: Run Snyk to check Node security
+        uses: snyk/actions/node@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=node.sarif
+      
+      - name: Upload Snyk Node results
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: node.sarif

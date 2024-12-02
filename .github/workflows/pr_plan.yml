@@ -1,4 +1,4 @@
-name: "Calculate new infraestructure on PR"
+name: "Calculate new infraestructure on PR and run IaC SAST"
 on:
   pull_request:
     branches:
@@ -7,7 +7,7 @@ on:
       - 'terraform/**.tf'
 
 jobs:
-  deploy:
+  tf_plan:
     name: PR Terraform planner
     runs-on: ubuntu-latest
     steps:
@@ -25,6 +25,7 @@ jobs:
           aws-region: us-east-1
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+      
 
       - name: "Terraform plan difference"
         run:  |
@@ -43,3 +44,28 @@ jobs:
           terraform-json: terraform/terraform.json
           github-token: ${{ secrets.PR_COMMENTER_TOKEN }}
           remove-stale-reports: true 
+
+  tf_scan:
+    name: PR Terraform Snyk scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout (bring code to this VM)"
+        uses: actions/checkout@v3
+    
+      - name: Run Snyk to check terraform security
+        uses: snyk/actions/iac@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=iac.sarif
+      
+      - name: Post Snyk findings in the pull request
+        uses: sett-and-hive/sarif-to-comment-action@v2.0.1
+        with:
+          token: ${{ secrets.PR_COMMENTER_TOKEN }}
+          repository: ${{ github.repository }}
+          branch: ${{ github.head_ref }}
+          pr-number: ${{ github.event.number }}
+          sarif-file: iac.sarif
+          title: Snyk Terraform security report
